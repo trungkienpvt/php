@@ -18,3 +18,7 @@ public function convert($string)
 
 //compare datetime
 TO_DAYS(expire_date)>To_DAYS(NOW())
+//Set default timezone
+-function date_default_timezone_set ( string $timezone_identifier )
+- Link to get timezone_identifier: http://www.php.net/manual/en/timezones.php
+
