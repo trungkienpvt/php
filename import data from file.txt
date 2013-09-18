@@ -37,5 +37,23 @@ foreach(sheetData as $row){
 	//parse data to array
 }
 //step two:run sql to insert data to db
+################--import data from csv file--######################
+$handle = fopen($csv_fieldname,'r');
+if(!$handle) die('Cannot open uploaded file.');
+$rows = array();
+$dem=0;
+$restore_email=0;
+//Read the file as csv
+while (($data = fgetcsv($handle, 10*1024, ",")) !== FALSE) 
+{
+
+	foreach($data as $key=>$value) 
+	{
+		$data[$key] = "'" . addslashes($value) . "'";
+	}							
+	$rows[] = implode(",",$data);
+
+}
+fclose($handle);		
 
 
