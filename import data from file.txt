@@ -27,8 +27,6 @@ if (trim($sql_line) != "" && strpos($sql_line, "--") === false) {
 //step one: read data from excel file and parse to array
 $inputFileName = PATH_ROOT . '/uploads/' . $dataFile['file_name'];
 $objReader = PHPExcel_IOFactory::createReader($inputFileType);
-$filterSubset = new CReaderFilter();
-$objReader->setReadFilter($filterSubset);
 $objPHPExcel = $objReader->load($inputFileName);
 $sheetData = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
 array_shift($sheetData);
