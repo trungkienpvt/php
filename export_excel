@@ -1,0 +1,49 @@
+$CI->load->library('excel');
+        $startRow = 1;
+        $tmp = 1;
+        $total = count($data);
+        if (count($total)) {
+            $alpha = 'A';
+            for ($i = 0; $i < $total; $i ++) {
+                if (count($data[$i]) > 0) {
+                    $CI->excel->getActiveSheet()
+                        ->setCellValue($alpha . $startRow, $data[$i]['Module'] . ' - ' . $data[$i]['Country']);
+                    foreach ($data[$i] as $k => $v) {
+                        if (($k != 'Module') && ($k != 'Country')) {
+                            $startRow++;
+                            $CI->excel->getActiveSheet()->setCellValue($alpha . $startRow, $k);
+                            $CI->excel->getActiveSheet()->getColumnDimension($alpha)->setWidth($width);
+                            $alpha++;
+                            $CI->excel->getActiveSheet()->setCellValue($alpha . $startRow, $v);
+                            $CI->excel->getActiveSheet()->getColumnDimension($alpha++)->setWidth($width);
+                            $alpha = 'A';
+                        }
+                    }
+                    $CI->excel->getActiveSheet()->getStyle('A' . $tmp . ':B' . $tmp)
+                        ->applyFromArray(
+                            array(
+                                'font' => array(
+                                'name' => 'Arial', 'bold' => true,
+                                'color' => array('argb' => '000000')),
+                                'alignment' => array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_LEFT)
+                            )
+                        );
+                    $startRow = $startRow + 2;
+                    $tmp = $startRow;
+                } //end foreach
+            }
+        } //end if
+        $CI->excel->getProperties()->setCreator("")
+                ->setLastModifiedBy("")
+                ->setTitle("Office 2007 XLSX Document")
+                ->setSubject("Office 2007 XLSX Document")
+                ->setDescription("Export The Attendees list")
+                ->setKeywords("Office 2007 openxml php")
+                ->setCategory("Result file");
+        $CI->excel->getActiveSheet()->setTitle($title);
+        $CI->excel->setActiveSheetIndex(0);
+        header('Content-Type: application/vnd.openxmlformats-officedocumeUnt.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        $objWriter = PHPExcel_IOFactory::createWriter($CI->excel, 'Excel2007');
+        $objWriter->save('php://output');
