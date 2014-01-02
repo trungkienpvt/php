@@ -1,49 +1,56 @@
-$CI->load->library('excel');
-$startRow = 1;
-$tmp = 1;
-$total = count($data);
-if (count($total)) {
-    $alpha = 'A';
-    for ($i = 0; $i < $total; $i ++) {
-        if (count($data[$i]) > 0) {
-            $CI->excel->getActiveSheet()
-                ->setCellValue($alpha . $startRow, $data[$i]['Module'] . ' - ' . $data[$i]['Country']);
-            foreach ($data[$i] as $k => $v) {
-                if (($k != 'Module') && ($k != 'Country')) {
-                    $startRow++;
-                    $CI->excel->getActiveSheet()->setCellValue($alpha . $startRow, $k);
-                    $CI->excel->getActiveSheet()->getColumnDimension($alpha)->setWidth($width);
-                    $alpha++;
-                    $CI->excel->getActiveSheet()->setCellValue($alpha . $startRow, $v);
-                    $CI->excel->getActiveSheet()->getColumnDimension($alpha++)->setWidth($width);
-                    $alpha = 'A';
-                }
-            }
-            $CI->excel->getActiveSheet()->getStyle('A' . $tmp . ':B' . $tmp)
-                ->applyFromArray(
-                    array(
-                        'font' => array(
-                        'name' => 'Arial', 'bold' => true,
-                        'color' => array('argb' => '000000')),
-                        'alignment' => array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_LEFT)
-                    )
-                );
-            $startRow = $startRow + 2;
-            $tmp = $startRow;
-        } //end foreach
+<?php
+require_once "PHPExcel/PHPExcel.php";
+function exportToExcel ($data = array())
+    {
+        // Create new PHPExcel object
+        $objPHPExcel = new PHPExcel();
+        // Set properties
+        $objPHPExcel->getProperties()->setCreator("Maarten Balliauw");
+        $objPHPExcel->getProperties()->setLastModifiedBy("Maarten Balliauw");
+        $objPHPExcel->getProperties()->setTitle("Office 2007 XLSX Test Document");
+        $objPHPExcel->getProperties()->setSubject("Office 2007 XLSX Test Document");
+        $objPHPExcel->getProperties()->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.");
+        $objPHPExcel->getProperties()->setKeywords("office 2007 openxml php");
+        $objPHPExcel->getProperties()->setCategory("Test result file");
+        //set font
+        $objPHPExcel->getActiveSheet()->getDefaultStyle()->getFont()->setName('Arial');
+        // Add some data
+        $objPHPExcel->setActiveSheetIndex(0);
+        $data="Phan Trung Kiên";
+//      $objPHPExcel->getActiveSheet()->setCellValue('B1', 'phan trung kien');
+		$objPHPExcel->getActiveSheet()->setCellValue('B1', utf8_decode($data));
+        // Set fonts
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(25);
+        $objPHPExcel->getActiveSheet()->getStyle('B1')->getFont()->setName('Arial');
+        $objPHPExcel->getActiveSheet()->getStyle('B1')->getFont()->setSize(10);
+        $objPHPExcel->getActiveSheet()->getStyle('B1')->getFont()->setBold(true);
+        $objPHPExcel->getActiveSheet()->getStyle('B1')->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_BLACK);
+        // Rename sheet
+        $objPHPExcel->getActiveSheet()->setTitle('Test export excel');
+        // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+        $objPHPExcel->setActiveSheetIndex(0);
+        // Save Excel 2007 file  
+        writeToFile($objPHPExcel, 'abc');
     }
-} //end if
-$CI->excel->getProperties()->setCreator("")
-        ->setLastModifiedBy("")
-        ->setTitle("Office 2007 XLSX Document")
-        ->setSubject("Office 2007 XLSX Document")
-        ->setDescription("Export The Attendees list")
-        ->setKeywords("Office 2007 openxml php")
-        ->setCategory("Result file");
-$CI->excel->getActiveSheet()->setTitle($title);
-$CI->excel->setActiveSheetIndex(0);
-header('Content-Type: application/vnd.openxmlformats-officedocumeUnt.spreadsheetml.sheet');
-header('Content-Disposition: attachment;filename="' . $filename . '"');
-header('Cache-Control: max-age=0');
-$objWriter = PHPExcel_IOFactory::createWriter($CI->excel, 'Excel2007');
-$objWriter->save('php://output');
+    
+function writeToFile ($objPHPExcel, $name = 'Project_consomme')
+    {
+        $versionParam = 'Excel2007';    //Excel5
+//		$objWriter = new PHPExcel_Writer_CSV($objPHPExcel);
+//		$objWriter->setUseBOM(true);
+		include "PHPExcel/PHPExcel/IOFactory.php";
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, $versionParam);
+        
+        
+        if ($versionParam == 'Excel5') {
+            header("Content-type: application/vnd.ms-excel; charset=utf-8");
+            $name = $name . '.xls';
+        } else {
+            header("Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8");
+            $name = $name . '.xlsx';
+        }
+        header("Content-disposition: filename=\"" . $name . "\";");
+        $objWriter->save('php://output');
+    }
+    
+exportToExcel();
