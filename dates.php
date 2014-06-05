@@ -22,13 +22,11 @@ TO_DAYS(expire_date)>To_DAYS(NOW())
 -function date_default_timezone_set ( string $timezone_identifier )
 - Link to get timezone_identifier: http://www.php.net/manual/en/timezones.php
 
-//computed distance between the 2 days
-$first_date = strtotime('2012-07-11');
-$second_date = strtotime('2012-07-14');
-$datediff = abs($first_date - $second_date);
-echo floor($datediff/(60*60*24));
-//or
+//computed distance between the 2 days by php
 $date1 = new DateTime("2012-03-24");
 $date2 = new DateTime("2012-03-26");
 $interval = $date1->diff($date2);
-echo "<br />".$interval->y . " years, " . $interval->m." months, ".$interval->d." days ";
+
+//computed distance between the 2 days by sql
+mysql> SELECT DATEDIFF('2007-12-31 23:59:59','2007-12-30');
+        -> 1
